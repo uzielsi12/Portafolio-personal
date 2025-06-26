@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre mí - Fan de los Souls</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="28" cy="28" r="28" fill="#e2b714"/>
+          <circle cx="28" cy="22" r="10" fill="#232526"/>
+          <ellipse cx="28" cy="42" rx="14" ry="8" fill="#232526"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Uziel Quintero</h1>
+        <p>Fan de los Souls y programador</p>
+      </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Sobre mí</a></li>
+          <li><a href="#">Proyectos</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+    <section class="perfil">
+      <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80" alt="Avatar estilo Souls">
+      <div class="perfil-info">
+        <h2>Sobre mí</h2>
+        <p>¡Hola! Soy Uziel, un entusiasta de los videojuegos, especialmente de la saga Souls (Dark Souls, Demon's Souls, Bloodborne, Elden Ring y Sekiro). Me encanta enfrentar retos difíciles, aprender de cada derrota y disfrutar de la atmósfera única que solo estos juegos pueden ofrecer. Además, soy programador y me gusta crear soluciones elegantes, tanto en código como en la vida.</p>
+      </div>
+    </section>
+    <section class="caracteristicas">
+      <div class="caracteristica">
+        <h3>Resiliencia</h3>
+        <p>Como en los Souls, nunca me rindo ante la adversidad. Cada error es una oportunidad para mejorar y volver más fuerte.</p>
+      </div>
+      <div class="caracteristica">
+        <h3>Explorador de mundos oscuros</h3>
+        <p>Disfruto descubrir secretos y lore oculto, tanto en los juegos como en la programación. Siempre busco ir más allá de lo evidente.</p>
+      </div>
+      <div class="caracteristica">
+        <h3>Precisión y estrategia</h3>
+        <p>En los Souls, cada movimiento cuenta. En la programación, cada línea de código importa. Me esfuerzo por ser preciso y estratégico en todo lo que hago.</p>
+      </div>
+      <div class="caracteristica">
+        <h3>Comunidad</h3>
+        <p>Me gusta compartir conocimientos, ayudar a otros jugadores y programadores, y crecer junto a una comunidad apasionada.</p>
+      </div>
+      <div class="caracteristica">
+        <h3>Fan de FromSoftware</h3>
+        <p>He jugado y terminado todos los títulos principales de FromSoftware, y siempre estoy atento a sus próximos lanzamientos.</p>
+      </div>
+      <div class="caracteristica">
+        <h3>Programador Creativo</h3>
+        <p>Me especializo en crear proyectos inspirados en los Souls, como bots, páginas web y mods. ¡La creatividad es mi arma!</p>
+      </div>
+    </section>
+    
+    <!-- Minijuego Snake -->
+    <section style="margin:2.5rem 0 1.5rem 0; text-align:center;">
+      <h2 style="color:#e2b714;">Snake Soul</h2>
+      <div id="scorePanel" style="display:flex;justify-content:center;gap:2.5rem;margin-bottom:0.7rem;">
+        <div style="color:#e2b714;font-weight:bold;font-size:1.1rem;">Best Score: <span id="bestScore">0</span></div>
+        <div style="color:#f3f3f3;font-weight:bold;font-size:1.1rem;">Score: <span id="currentScore">0</span></div>
+      </div>
+      <canvas id="snakeCanvas" width="320" height="320" style="background:#181a1b; border:3px solid #e2b714; border-radius:8px;"></canvas>
+      <div style="margin:1rem 0;">
+        <button id="playBtn" style="background:#e2b714;color:#181a1b;font-weight:bold;padding:0.6rem 1.5rem;border:none;border-radius:6px;font-size:1.1rem;cursor:pointer;">Play</button>
+        <button id="restartBtn" style="display:none;background:#292b2c;color:#e2b714;font-weight:bold;padding:0.6rem 1.5rem;border:none;border-radius:6px;font-size:1.1rem;cursor:pointer;">Reiniciar</button>
+      </div>
+      <div style="color:#b0b0b0; margin-top:0.5rem;">Usa las flechas o W, A, S, D para jugar</div>
+    </section>
+    <script>
+      const canvas = document.getElementById('snakeCanvas');
+      const ctx = canvas.getContext('2d');
+      const grid = 16;
+      let count = 0;
+      let snake = [{x: 160, y: 160}];
+      let dx = grid;
+      let dy = 0;
+      let apple = {x: 320, y: 320};
+      let maxCells = 4;
+      let gameOver = false;
+      let running = false;
+      let animationId = null;
+      let score = 0;
+      let bestScore = 0;
+      const bestScoreSpan = document.getElementById('bestScore');
+      const currentScoreSpan = document.getElementById('currentScore');
+
+      // Cargar best score de localStorage
+      if (localStorage.getItem('snakeSoulBestScore')) {
+        bestScore = parseInt(localStorage.getItem('snakeSoulBestScore')) || 0;
+        bestScoreSpan.textContent = bestScore;
+      }
+
+      const playBtn = document.getElementById('playBtn');
+      const restartBtn = document.getElementById('restartBtn');
+
+      function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
+      }
+
+      function resetGame() {
+        snake = [{x: 160, y: 160}];
+        dx = grid;
+        dy = 0;
+        maxCells = 4;
+        apple.x = getRandomInt(0, 20) * grid;
+        apple.y = getRandomInt(0, 20) * grid;
+        gameOver = false;
+        running = false;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        drawStartScreen();
+        playBtn.style.display = '';
+        restartBtn.style.display = 'none';
+        score = 0;
+        currentScoreSpan.textContent = score;
+      }
+
+      function drawStartScreen() {
+        ctx.fillStyle = '#232526';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#e2b714';
+        ctx.font = 'bold 2rem Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Snake Souls', canvas.width/2, canvas.height/2-10);
+        ctx.font = '1rem Roboto, sans-serif';
+        ctx.fillStyle = '#b0b0b0';
+        ctx.fillText('Presiona Play para comenzar', canvas.width/2, canvas.height/2+24);
+      }
+
+      function drawGameOver() {
+        ctx.fillStyle = 'rgba(24,26,27,0.85)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#e2b714';
+        ctx.font = 'bold 2rem Roboto, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('¡Game Over!', canvas.width/2, canvas.height/2-10);
+        ctx.font = '1rem Roboto, sans-serif';
+        ctx.fillStyle = '#b0b0b0';
+        ctx.fillText('Presiona Reiniciar', canvas.width/2, canvas.height/2+24);
+      }
+
+      function loop() {
+        if (!running) return;
+        animationId = requestAnimationFrame(loop);
+        if (++count < 6) return;
+        count = 0;
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        let head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        snake.unshift(head);
+
+        // Comer manzana
+        if (snake[0].x === apple.x && snake[0].y === apple.y) {
+          maxCells++;
+          apple.x = getRandomInt(0, 20) * grid;
+          apple.y = getRandomInt(0, 20) * grid;
+          score++;
+          currentScoreSpan.textContent = score;
+          if (score > bestScore) {
+            bestScore = score;
+            bestScoreSpan.textContent = bestScore;
+            localStorage.setItem('snakeSoulBestScore', bestScore);
+          }
+        }
+
+        if (snake.length > maxCells) snake.pop();
+
+        // Dibujar manzana
+        ctx.fillStyle = '#e2b714';
+        ctx.fillRect(apple.x, apple.y, grid-2, grid-2);
+
+        // Dibujar snake
+        ctx.fillStyle = '#f3f3f3';
+        snake.forEach((cell, idx) => {
+          ctx.fillRect(cell.x, cell.y, grid-2, grid-2);
+          // Colisión con sí mismo
+          for (let i = idx+1; i < snake.length; i++) {
+            if (cell.x === snake[i].x && cell.y === snake[i].y) {
+              gameOver = true;
+            }
+          }
+        });
+
+        // Colisión con bordes
+        if (
+          snake[0].x < 0 || snake[0].x >= canvas.width ||
+          snake[0].y < 0 || snake[0].y >= canvas.height
+        ) {
+          gameOver = true;
+        }
+
+        if (gameOver) {
+          running = false;
+          cancelAnimationFrame(animationId);
+          drawGameOver();
+          playBtn.style.display = 'none';
+          restartBtn.style.display = '';
+        }
+      }
+
+      playBtn.addEventListener('click', function() {
+        if (!running) {
+          resetGame();
+          running = true;
+          playBtn.style.display = 'none';
+          restartBtn.style.display = 'none';
+          animationId = requestAnimationFrame(loop);
+        }
+      });
+
+      restartBtn.addEventListener('click', function() {
+        resetGame();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (!running) return;
+        const key = e.key.toLowerCase();
+        if ((e.key === 'ArrowLeft' || key === 'a') && dx === 0) { dx = -grid; dy = 0; }
+        else if ((e.key === 'ArrowUp' || key === 'w') && dy === 0) { dx = 0; dy = -grid; }
+        else if ((e.key === 'ArrowRight' || key === 'd') && dx === 0) { dx = grid; dy = 0; }
+        else if ((e.key === 'ArrowDown' || key === 's') && dy === 0) { dx = 0; dy = grid; }
+      });
+
+      // Mostrar pantalla de inicio al cargar
+      drawStartScreen();
+    </script>
+    
+    <div style="text-align:center; color:#e2b714; font-size:1.1rem; margin-bottom:1.5rem;">
+      <strong>Referencias Souls:</strong> "La muerte no es el final, sino una lección más."<br>
+      "Praise the Sun!" ☀️<br>
+      "Prepare to die... and to aprender a programar."
+    </div>
+  </div>
+  <footer>
+    Página creada por Uziel Quintero | Inspirado en los juegos de FromSoftware | &copy; 2024<br>
+    Imágenes de Unsplash libres de derechos
+  </footer>
+</body>
+</html> 
